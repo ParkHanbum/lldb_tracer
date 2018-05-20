@@ -1,0 +1,149 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+BasicFormatter	lldbutil.py	/^class BasicFormatter(object):$/;"	c
+ChildVisitingFormatter	lldbutil.py	/^class ChildVisitingFormatter(BasicFormatter):$/;"	c
+GetFilename	lldbutil.py	/^    def GetFilename(i):$/;"	f	function:get_filenames
+GetFuncName	lldbutil.py	/^    def GetFuncName(i):$/;"	f	function:get_function_names
+GetLineNumber	lldbutil.py	/^    def GetLineNumber(i):$/;"	f	function:get_line_numbers
+GetModuleName	lldbutil.py	/^    def GetModuleName(i):$/;"	f	function:get_module_names
+GetPCAddress	lldbutil.py	/^    def GetPCAddress(i):$/;"	f	function:get_pc_addresses
+GetPCAddress	trace.py	/^    def GetPCAddress(i):$/;"	f	function:get_pc_addresses
+GetStackFrame	lldbutil.py	/^    def GetStackFrame(i):$/;"	f	function:get_stack_frames
+GetSymbol	lldbutil.py	/^    def GetSymbol(i):$/;"	f	function:get_symbol_names
+InstrumentedFrame	trace.py	/^class InstrumentedFrame:$/;"	c
+MyListeningThread	trace.py	/^class MyListeningThread(threading.Thread):$/;"	c
+PrintableRegex	lldbutil.py	/^class PrintableRegex(object):$/;"	c
+RecursiveDecentFormatter	lldbutil.py	/^class RecursiveDecentFormatter(BasicFormatter):$/;"	c
+TraceOptionParser	trace.py	/^class TraceOptionParser(optparse.OptionParser):$/;"	c
+__init__	lldbutil.py	/^    def __init__(self, indent_child=2):$/;"	m	class:ChildVisitingFormatter
+__init__	lldbutil.py	/^    def __init__(self, indent_level=0, indent_child=2):$/;"	m	class:RecursiveDecentFormatter
+__init__	lldbutil.py	/^    def __init__(self, text):$/;"	m	class:PrintableRegex
+__init__	trace.py	/^    def __init__(self, result):$/;"	m	class:TraceOptionParser
+__init__	trace.py	/^    def __init__(self, target, thread, frame):$/;"	m	class:InstrumentedFrame
+__init__	trace.py	/^    def __init__(self, wait_event, notify_event, listener, process):$/;"	m	class:MyListeningThread
+__lldb_init_module	study.py	/^def __lldb_init_module(debugger, internal_dict):$/;"	f	file:
+__lldb_init_module	trace.py	/^def __lldb_init_module(debugger, internal_dict):$/;"	f	file:
+__repr__	lldbutil.py	/^    def __repr__(self):$/;"	m	class:PrintableRegex	file:
+__str__	lldbutil.py	/^    def __str__(self):$/;"	m	class:PrintableRegex	file:
+append_to_process_working_directory	lldbutil.py	/^def append_to_process_working_directory(test, *paths):$/;"	f
+bytearray_to_int	lldbutil.py	/^def bytearray_to_int(bytes, bytesize):$/;"	f
+check_breakpoint_result	lldbutil.py	/^def check_breakpoint_result($/;"	f
+clear	trace.py	/^    def clear(self):$/;"	m	class:InstrumentedFrame
+clear_calls_instrumentation	trace.py	/^    def clear_calls_instrumentation(self):$/;"	m	class:InstrumentedFrame
+clear_calls_syscalls_and_jmps_and_instrument_return	trace.py	/^    def clear_calls_syscalls_and_jmps_and_instrument_return(self, frame):$/;"	m	class:InstrumentedFrame
+clear_jmps_instrumentation	trace.py	/^    def clear_jmps_instrumentation(self):$/;"	m	class:InstrumentedFrame
+clear_return_breakpoint	trace.py	/^    def clear_return_breakpoint(self):$/;"	m	class:InstrumentedFrame
+clear_syscall_instrumentation	trace.py	/^    def clear_syscall_instrumentation(self):$/;"	m	class:InstrumentedFrame
+continue_and_wait_for_breakpoint	trace.py	/^def continue_and_wait_for_breakpoint(process, thread, listening_thread, wait_event, notify_event):$/;"	f
+continue_to_breakpoint	lldbutil.py	/^def continue_to_breakpoint(process, bkpt):$/;"	f
+disassemble	lldbutil.py	/^def disassemble(target, function_or_symbol):$/;"	f
+exit	trace.py	/^    def exit(self):$/;"	m	class:MyListeningThread
+exit	trace.py	/^    def exit(self, status=0, msg=None):$/;"	m	class:TraceOptionParser
+expect_state_changes	lldbutil.py	/^def expect_state_changes(test, listener, process, states, timeout=5):$/;"	f
+find_library	lldbutil.py	/^    def find_library(target, library):$/;"	f	function:skip_if_library_missing
+find_library_callable	lldbutil.py	/^    def find_library_callable(test):$/;"	f	function:skip_if_library_missing
+find_word	dictionary.c	/^int find_word(tree_node *dictionary, char *word) {$/;"	f
+find_word	dictionary.s	/^find_word:$/;"	l
+format	lldbutil.py	/^    def format(self, value, buffer=None):$/;"	m	class:ChildVisitingFormatter
+format	lldbutil.py	/^    def format(self, value, buffer=None):$/;"	m	class:RecursiveDecentFormatter
+format	lldbutil.py	/^    def format(self, value, buffer=None, indent=0):$/;"	m	class:BasicFormatter
+frame	study.py	/^def frame(debugger, commnad, result, internal_dict):$/;"	f
+get_ESRs	lldbutil.py	/^def get_ESRs(frame):$/;"	f
+get_FPRs	lldbutil.py	/^def get_FPRs(frame):$/;"	f
+get_GPRs	lldbutil.py	/^def get_GPRs(frame):$/;"	f
+get_args_as_string	lldbutil.py	/^def get_args_as_string(frame, showFuncName=True):$/;"	f
+get_bpno_from_match	lldbutil.py	/^def get_bpno_from_match(break_results):$/;"	f
+get_caller_symbol	lldbutil.py	/^def get_caller_symbol(thread):$/;"	f
+get_crashed_threads	lldbutil.py	/^def get_crashed_threads(test, process):$/;"	f
+get_description	lldbutil.py	/^def get_description(obj, option=None):$/;"	f
+get_filenames	lldbutil.py	/^def get_filenames(thread):$/;"	f
+get_function_names	lldbutil.py	/^def get_function_names(thread):$/;"	f
+get_line_numbers	lldbutil.py	/^def get_line_numbers(thread):$/;"	f
+get_module_names	lldbutil.py	/^def get_module_names(thread):$/;"	f
+get_next_event	lldbutil.py	/^        def get_next_event():$/;"	f	function:expect_state_changes
+get_one_thread_stopped_at_breakpoint	lldbutil.py	/^def get_one_thread_stopped_at_breakpoint($/;"	f
+get_one_thread_stopped_at_breakpoint_id	lldbutil.py	/^def get_one_thread_stopped_at_breakpoint_id($/;"	f
+get_parent_frame	lldbutil.py	/^def get_parent_frame(frame):$/;"	f
+get_pc_addresses	lldbutil.py	/^def get_pc_addresses(thread):$/;"	f
+get_pc_addresses	trace.py	/^def get_pc_addresses(thread):$/;"	f
+get_prog_name	trace.py	/^    def get_prog_name(self):$/;"	m	class:TraceOptionParser
+get_registers	lldbutil.py	/^def get_registers(frame, kind):$/;"	f
+get_signal_number	lldbutil.py	/^def get_signal_number(signal_name):$/;"	f
+get_stack_frames	lldbutil.py	/^def get_stack_frames(thread):$/;"	f
+get_stopped_thread	lldbutil.py	/^def get_stopped_thread(process, reason):$/;"	f
+get_stopped_threads	lldbutil.py	/^def get_stopped_threads(process, reason):$/;"	f
+get_symbol_names	lldbutil.py	/^def get_symbol_names(thread):$/;"	f
+get_threads_stopped_at_breakpoint	lldbutil.py	/^def get_threads_stopped_at_breakpoint(process, bkpt):$/;"	f
+get_threads_stopped_at_breakpoint_id	lldbutil.py	/^def get_threads_stopped_at_breakpoint_id(process, bpid):$/;"	f
+insert	dictionary.c	/^void insert(tree_node *root, char *word) {$/;"	f
+insert	dictionary.s	/^insert:$/;"	l
+instrument_calls_syscalls_and_jmps	trace.py	/^    def instrument_calls_syscalls_and_jmps(self):$/;"	m	class:InstrumentedFrame
+instrument_return	trace.py	/^    def instrument_return(self, return_address):$/;"	m	class:InstrumentedFrame
+int_to_bytearray	lldbutil.py	/^def int_to_bytearray(val, bytesize):$/;"	f
+is_exe	lldbutil.py	/^def is_exe(fpath):$/;"	f
+is_frame_valid	trace.py	/^    def is_frame_valid(self):$/;"	m	class:InstrumentedFrame
+is_stopped_on_call	trace.py	/^    def is_stopped_on_call(self, frame):$/;"	m	class:InstrumentedFrame
+is_stopped_on_jmp	trace.py	/^    def is_stopped_on_jmp(self, frame, validate_saved_frame):$/;"	m	class:InstrumentedFrame
+is_stopped_on_return	trace.py	/^    def is_stopped_on_return(self, frame):$/;"	m	class:InstrumentedFrame
+is_stopped_on_syscall	trace.py	/^    def is_stopped_on_syscall(self, frame):$/;"	m	class:InstrumentedFrame
+is_thread_crashed	lldbutil.py	/^def is_thread_crashed(test, thread):$/;"	f
+join_remote_paths	lldbutil.py	/^def join_remote_paths(*paths):$/;"	f
+left	dictionary.c	/^  struct tree_node *left;$/;"	m	struct:tree_node	typeref:struct:tree_node::tree_node	file:
+log	trace.py	/^def log(msg):$/;"	f
+log_file	trace.py	/^log_file = None$/;"	v
+log_flush	trace.py	/^def log_flush():$/;"	f
+log_v	trace.py	/^def log_v(msg):$/;"	f
+main	dictionary.c	/^int main(int argc, char **argv) {$/;"	f
+main	dictionary.s	/^main:$/;"	l
+match	lldbutil.py	/^    def match(self, str):$/;"	m	class:PrintableRegex
+mkdir_p	lldbutil.py	/^def mkdir_p(path):$/;"	f
+module	study.py	/^def module(debugger, commnad, result, internal_dict):$/;"	f
+options	trace.py	/^options = None$/;"	v
+parse_options	trace.py	/^def parse_options(command, result):$/;"	f
+populate_dictionary	dictionary.c	/^void populate_dictionary(tree_node **dictionary, char *filename) {$/;"	f
+populate_dictionary	dictionary.s	/^populate_dictionary:$/;"	l
+print_registers	lldbutil.py	/^def print_registers(frame, string_buffer=False):$/;"	f
+print_stacktrace	lldbutil.py	/^def print_stacktrace(thread, string_buffer=False):$/;"	f
+print_stacktrace	trace.py	/^def print_stacktrace(target, thread):$/;"	f
+print_stacktraces	lldbutil.py	/^def print_stacktraces(process, string_buffer=False):$/;"	f
+print_tree	dictionary.c	/^void print_tree(tree_node *dictionary) {$/;"	f
+print_tree	dictionary.s	/^print_tree:$/;"	l
+process	study.py	/^def process(debugger, commnad, result, internal_dict):$/;"	f
+read_file_from_process_wd	lldbutil.py	/^def read_file_from_process_wd(test, name):$/;"	f
+read_file_on_target	lldbutil.py	/^def read_file_on_target(test, remote):$/;"	f
+right	dictionary.c	/^  struct tree_node *right;$/;"	m	struct:tree_node	typeref:struct:tree_node::tree_node	file:
+run	trace.py	/^    def run(self):$/;"	m	class:MyListeningThread
+run_break_set_by_file_and_line	lldbutil.py	/^def run_break_set_by_file_and_line($/;"	f
+run_break_set_by_regexp	lldbutil.py	/^def run_break_set_by_regexp($/;"	f
+run_break_set_by_selector	lldbutil.py	/^def run_break_set_by_selector($/;"	f
+run_break_set_by_source_regexp	lldbutil.py	/^def run_break_set_by_source_regexp($/;"	f
+run_break_set_by_symbol	lldbutil.py	/^def run_break_set_by_symbol($/;"	f
+run_break_set_command	lldbutil.py	/^def run_break_set_command(test, command):$/;"	f
+run_to_breakpoint_do_run	lldbutil.py	/^def run_to_breakpoint_do_run(test, target, bkpt, launch_info):$/;"	f
+run_to_breakpoint_make_target	lldbutil.py	/^def run_to_breakpoint_make_target(test, exe_name, in_cwd):$/;"	f
+run_to_name_breakpoint	lldbutil.py	/^def run_to_name_breakpoint (test, bkpt_name, launch_info = None, $/;"	f
+run_to_source_breakpoint	lldbutil.py	/^def run_to_source_breakpoint(test, bkpt_pattern, source_spec,$/;"	f
+skip_if_callable	lldbutil.py	/^def skip_if_callable(test, mycallable, reason):$/;"	f
+skip_if_library_missing	lldbutil.py	/^def skip_if_library_missing(test, target, library):$/;"	f
+sort_stopped_threads	lldbutil.py	/^def sort_stopped_threads(process,$/;"	f
+state_type_to_str	lldbutil.py	/^def state_type_to_str(enum):$/;"	f
+stop_reason_to_str	lldbutil.py	/^def stop_reason_to_str(enum):$/;"	f
+strip	dictionary.c	/^char *strip(char **word) {$/;"	f
+strip	dictionary.s	/^strip:$/;"	l
+symbol	study.py	/^def symbol(debugger, commnad, result, internal_dict):$/;"	f
+symbol_type_to_str	lldbutil.py	/^def symbol_type_to_str(enum):$/;"	f
+target	study.py	/^def target(debugger, commnad, result, internal_dict):$/;"	f
+thread	study.py	/^def thread(debugger, commnad, result, internal_dict):$/;"	f
+trace	trace.py	/^def trace(debugger, command, result, internal_dict):$/;"	f
+tree_node	dictionary.c	/^typedef struct tree_node {$/;"	s	file:
+tree_node	dictionary.c	/^} tree_node;$/;"	t	typeref:struct:tree_node	file:
+update_frame	trace.py	/^    def update_frame(self, frame):$/;"	m	class:InstrumentedFrame
+value_type_to_str	lldbutil.py	/^def value_type_to_str(enum):$/;"	f
+wait_for_file_on_target	lldbutil.py	/^def wait_for_file_on_target(testcase, file_path, max_attempts=6):$/;"	f
+wait_timed_out	trace.py	/^    def wait_timed_out(self):$/;"	m	class:MyListeningThread
+which	lldbutil.py	/^def which(program):$/;"	f
+word	dictionary.c	/^  const char *word;$/;"	m	struct:tree_node	file:
