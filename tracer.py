@@ -18,6 +18,19 @@ program_name = None
 # trace datas
 traced_events = {}
 
+# Global Methods
+encode = base64.encodestring
+decode = base64.decodestring
+
+
+def DEBUG(msg, obj):
+    if options.verbose:
+        stream = lldb.SBStream()
+        obj.GetDescription(stream)
+        print("======== {} ============".format(msg))
+        print(stream.GetData())
+        print("====================================")
+
 
 class MyListeningThread(threading.Thread):
     def __init__(self, listener, process):
@@ -35,51 +48,21 @@ class MyListeningThread(threading.Thread):
         while True:
             if listener.WaitForEvent(5, event):
                 state = process.GetState()
+                DEBUG("[EVENT] : ", event)
 
                 if state == lldb.eStateExited:
                     print("EXITED!")
                     trace_finish(pid)
                     break
+
                 if state == lldb.eStateStopped:
                     thread = get_stopped_thread(process,
                                                 lldb.eStopReasonBreakpoint)
-                    if thread is None:
-                        print("thread none")
-                        process.Continue()
+                    for thread in process.get_process_thread_list():
+                        reason = thread.GetStopReason()
+                        if reason is not lldb.eStopReasonInvalid:
+                            print(stop_reason_to_str(reason))
                         continue
-
-                    if thread.IsValid():
-                        thread = process.GetSelectedThread()
-                        tid = thread.GetThreadID()
-                        pid = thread.GetProcess().GetProcessID()
-                        tname = thread.GetName()
-                        stacktrace = get_stacktrace(thread)
-                        if options.verbose:
-                            print("======= [Print Stack Trace] =======")
-                            # print_stacktrace(thread)
-                            print(stacktrace)
-                            print("======= =================== =======")
-                        current_frame = stacktrace["FRAMES"].pop(0)
-                        addr = current_frame["addr"]
-                        names = lldb.SBStringList()
-                        BreakpointList[addr].GetNames(names)
-                        name = names.GetStringAtIndex(0)
-                        if name is not None:
-                            name = base64.decodestring(name)
-                            _event = {}
-                            _event["name"] = name[:-2]
-                            _event["ph"] = name[-1:]
-                            _event["pid"] = pid
-                            _event["tid"] = tid
-                            _event["ts"] = time.time()
-
-                            if not (tid, tname) in traced_events:
-                                traced_events[tid, tname] = []
-
-                            traced_events[tid, tname].append(_event)
-
-                        thread.Resume()
-                        process.Continue()
             else:
                 print("timeout occured")
 
@@ -100,7 +83,7 @@ def trace_finish(pid):
         else:
             module["tid"] = tid
 
-        module["name"] = tname
+        module["name"] = program_name
         module["args"] = {"name" : program_name}
         events.append(module)
         if "traceEvents" in trace_format:
@@ -158,17 +141,60 @@ def get_stacktrace(thread, string_buffer=False):
 
     return result
 
-"""
-prev_stacktrace = None
-def print_customize_trace(stacktrace):
-    global prev_stacktrace
-    if prev_stacktrace is None:
-        prev_stacktrace = stacktrace
-        return
 
-    own_st = handle_stacktrace(stacktrace)
-    prev_stacktrace = stacktrace
-"""
+
+def save_event(frame):
+    thread = frame.GetThread()
+    process = thread.GetProcess()
+    target = process.GetTarget()
+    symbol = frame.GetSymbol()
+
+    addr = frame.GetPC()
+    pid = process.GetProcessID()
+    tid = thread.GetThreadID()
+    tname = thread.GetThreadID()
+
+    names = lldb.SBStringList()
+
+    if addr in BreakpointList:
+        BreakpointList[addr].GetNames(names)
+        name = names.GetStringAtIndex(0)
+        if name is not None:
+            name = decode(name)
+            _event = {}
+            _event["name"] = name[:-2]
+            _event["ph"] = name[-1:]
+            _event["pid"] = pid
+            _event["tid"] = tid
+            _event["ts"] = time.time()
+        else:
+            print ("NAME IS NONE : " + hex(addr))
+
+        if not (tid, tname) in traced_events:
+            traced_events[tid, tname] = []
+
+        traced_events[tid, tname].append(_event)
+    else:
+        print ("ADDRESS IS NOT MATCHED : " + hex(addr))
+
+
+
+def handle_breakpoint(frame, bp_log, dict):
+    thread = frame.GetThread()
+    process = thread.GetProcess()
+    target = process.GetTarget()
+    symbol = frame.GetSymbol()
+
+    addr = frame.GetPC()
+
+    if addr in BreakpointList:
+        save_event(frame)
+    else:
+        print("Must not reach here : " + hex(addr))
+
+    thread.Resume()
+    process.Continue()
+
 
 BreakpointList = {}
 def do_trace():
@@ -189,8 +215,8 @@ def do_trace():
             argv, # argv
             None, # envp
             None, # stdin_path
-            None, # stdout_path
-            None, # stderr_path
+            'stdout_log', # stdout_path
+            'stderr_log', # stderr_path
             None, # working directory
             0,    # launch flag
             True, # stop at entry
@@ -200,33 +226,35 @@ def do_trace():
         print("process invalied")
         exit()
 
+    desc = lldb.SBStream()
     count = 0
     for module in target.module_iter():
         print str(module)
 
         for symbol in module:
-            if (symbol.GetType() == lldb.eSymbolTypeCode):
-                begin = symbol.GetStartAddress().GetLoadAddress(target)
-                end   = symbol.GetEndAddress().GetLoadAddress(target)-1
+            if (symbol.GetType() == lldb.eSymbolTypeCode
+                    and symbol.GetName()):
+                # find end of function to set the breakpoint.
+                instlist = symbol.GetInstructions(target, "intel")
+                inst = instlist.GetInstructionAtIndex(instlist.GetSize()-1)
+                DEBUG("INSTRUCTIONS", instlist)
+                DEBUG("LAST INSTRUCTION", inst)
 
-                if begin is None or end is None:
-                    print(count, symbol)
-                    count += 1
-                    continue
+                # find address to be breakpoint.
+                # at this point, target already loaded to process.
+                # so, we can find mapped-address of symbol from process.
+                begin = symbol.GetStartAddress().GetLoadAddress(target)
+                end = inst.GetAddress().GetLoadAddress(target)
 
                 bpb = target.BreakpointCreateByAddress(begin)
-                bpe = target.BreakpointCreateByAddress(end)
+                bpb.SetScriptCallbackFunction("handle_breakpoint")
+                bpb.AddName(encode(symbol.GetName() + ":B"))
+                BreakpointList[begin] = bpb
 
-                if (symbol.GetName()):
-                    bpb.AddName(encode(symbol.GetName() + ":B"))
-                    BreakpointList[begin] = bpb
-                    bpe.AddName(encode(symbol.GetName() + ":E"))
-                    BreakpointList[end] = bpe
-                else:
-                    bpb.AddName(encode(str(begin) + ":B"))
-                    BreakpointList[begin] = bpb
-                    bpe.AddName(encode(str(end) + ":E"))
-                    BreakpointList[end] = bpe
+                bpe = target.BreakpointCreateByAddress(end)
+                bpe.SetScriptCallbackFunction("handle_breakpoint")
+                bpe.AddName(encode(symbol.GetName() + ":E"))
+                BreakpointList[end] = bpe
 
     print("Start Tracing...")
     print(binpath)

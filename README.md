@@ -1,4 +1,4 @@
-# lldb_script_study
+# LLDB tracer
 some examples to study lldb python scripting
 
 an example c program to tracing. 
