@@ -143,7 +143,7 @@ def get_stacktrace(thread, string_buffer=False):
 
 
 
-def save_event(frame):
+def save_event(frame, args=None):
     thread = frame.GetThread()
     process = thread.GetProcess()
     target = process.GetTarget()
@@ -167,6 +167,10 @@ def save_event(frame):
             _event["pid"] = pid
             _event["tid"] = tid
             _event["ts"] = time.time()
+            if args:
+                print ("==================args============")
+                print (args)
+                _event["args"] = args
         else:
             print ("NAME IS NONE : " + hex(addr))
 
@@ -178,7 +182,6 @@ def save_event(frame):
         print ("ADDRESS IS NOT MATCHED : " + hex(addr))
 
 
-
 def handle_breakpoint(frame, bp_log, dict):
     thread = frame.GetThread()
     process = thread.GetProcess()
@@ -187,10 +190,33 @@ def handle_breakpoint(frame, bp_log, dict):
 
     addr = frame.GetPC()
 
+    # save arguments
+    args = None
+
     if addr in BreakpointList:
         save_event(frame)
     else:
         print("Must not reach here : " + hex(addr))
+
+    if options.print_args:
+        frame1 = thread.GetFrameAtIndex(1)
+        if frame1:
+            # arguments     => True
+            # locals        => False
+            # statics       => False
+            # in_scope_only => True
+            vars = frame1.GetVariables(True, False, False, True)
+            if vars:
+                args = {}
+                for var in vars:
+                    args[var.GetName()] = "{} {}".format(
+                            var.GetTypeName(), var.GetValue())
+            print(get_args_as_string(frame1))
+        else:
+            print("Cannot parse arguments")
+
+    if addr in BreakpointList:
+        save_event(frame, args)
 
     thread.Resume()
     process.Continue()
@@ -208,8 +234,6 @@ def do_trace():
     program_name = target.GetExecutable().GetFilename()
     error = lldb.SBError()
     listener = lldb.SBListener("my listener")
-    encode = base64.encodestring
-    decode = base64.decodestring
 
     process = target.Launch(listener,
             argv, # argv
@@ -276,6 +300,9 @@ def parse_options():
     parser.add_option("-v", "--verbose",
             action="store_true", dest="verbose", default=False,
             help="Running with detail messages")
+    parser.add_option("-p", "--print-args",
+            action="store_true", dest="print_args", default=False,
+            help="Print function arguments.")
     parser.add_option("--argv",
             action="store", dest="argv", default="", type="string",
             help="Specify the Value that as argument")
