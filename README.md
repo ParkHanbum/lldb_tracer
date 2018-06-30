@@ -36,12 +36,13 @@ python -m json.tool data.json > <output_filename>
 you can see the result like below after running it.
 ```
         {
-            "name": "__libc_csu_init",
+            "name": "driver::main(int, char**)",
             "ph": "B",
-            "pid": 2111,
-            "tid": 2111,
-            "ts": 1530333620.407282
+            "pid": 6586,
+            "tid": 6586,
+            "ts": 1530349671.31343
         },
+
 ```
 
 
@@ -59,19 +60,16 @@ after running it, you can see what has changed.
         {
             "args": {
                 "argc": "int 2",
-                "argv": "char ** 0x00007ffd346c5858",
-                "fini": "void (*)() None",
-                "init": "int (*)(int, char **, char **) 0x0000000000400560",
-                "main": "int (*)(int, char **, char **) 0x0000000000400541",
-                "rtld_fini": "void (*)() None",
-                "stack_end": "void * 0x00007ffd346c5848"
+                "argv": "char ** 0x00007ffd4db735e8",
+                "this": "driver *const 0x00007ffd4db734d0"
             },
-            "name": "__libc_csu_init",
+            "name": "driver::main(int, char**)",
             "ph": "B",
-            "pid": 2017,
-            "tid": 2017,
-            "ts": 1530333165.097881
+            "pid": 6586,
+            "tid": 6586,
+            "ts": 1530349671.31343
         },
+
 ```
 
 
