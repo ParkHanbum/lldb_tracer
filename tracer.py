@@ -8,6 +8,7 @@ import shlex
 import threading
 import time
 import base64
+import collections
 
 from lldbutil import *
 
@@ -22,6 +23,9 @@ traced_events = {}
 encode = base64.encodestring
 decode = base64.decodestring
 
+# event type
+fBeginEvent = 'B'
+fEndEvent = 'E'
 
 def DEBUG(msg, obj):
     if options.verbose:
@@ -91,6 +95,7 @@ def trace_finish(pid):
         else:
             trace_format["traceEvents"] = events
         print(events)
+        print("")
 
     trace_format["displayTimeUnit"] = "ns"
     metadata = {}
@@ -161,15 +166,13 @@ def save_event(frame, args=None):
         name = names.GetStringAtIndex(0)
         if name is not None:
             name = decode(name)
-            _event = {}
+            _event = collections.OrderedDict()
             _event["name"] = name[:-2]
             _event["ph"] = name[-1:]
             _event["pid"] = pid
             _event["tid"] = tid
             _event["ts"] = time.time()
             if args:
-                print ("==================args============")
-                print (args)
                 _event["args"] = args
         else:
             print ("NAME IS NONE : " + hex(addr))
@@ -189,32 +192,50 @@ def handle_breakpoint(frame, bp_log, dict):
     symbol = frame.GetSymbol()
 
     addr = frame.GetPC()
+    pid = process.GetProcessID()
+    tid = thread.GetThreadID()
+    tname = thread.GetThreadID()
+
+    event_type = None
+
+    if addr in BreakpointList:
+        names = lldb.SBStringList()
+        BreakpointList[addr].GetNames(names)
+        name = names.GetStringAtIndex(0)
+        if name is not None:
+            name = decode(name)
+            _event = collections.OrderedDict()
+            _event["name"] = name[:-2]
+            event_type = name[-1:]
+            _event["ph"] = event_type
+            _event["pid"] = pid
+            _event["tid"] = tid
+            _event["ts"] = time.time()
 
     # save arguments
     args = None
 
-    if options.print_args:
-        frame1 = thread.GetFrameAtIndex(1)
-        if frame1:
+    if event_type is not fEndEvent:
+        if options.print_args:
             # arguments     => True
             # locals        => False
             # statics       => False
             # in_scope_only => True
-            vars = frame1.GetVariables(True, False, False, True)
+            vars = frame.GetVariables(True, False, False, True)
             if vars:
-                args = {}
-                for var in vars:
+                args = collections.OrderedDict()
+                for var in reversed(vars):
                     args[var.GetName()] = "{} {}".format(
                             var.GetTypeName(), var.GetValue())
-            print(get_args_as_string(frame1))
-        else:
-            print("Cannot parse arguments")
+                print(args)
+                print(get_args_as_string(frame))
+            else:
+                print("Cannot parse arguments")
 
     if addr in BreakpointList:
-        save_event(frame, args)
+        save_event(frame, args=args)
     else:
         print("Must not reach here : " + hex(addr))
-
 
     thread.Resume()
     process.Continue()
