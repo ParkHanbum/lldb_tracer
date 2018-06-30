@@ -193,11 +193,6 @@ def handle_breakpoint(frame, bp_log, dict):
     # save arguments
     args = None
 
-    if addr in BreakpointList:
-        save_event(frame)
-    else:
-        print("Must not reach here : " + hex(addr))
-
     if options.print_args:
         frame1 = thread.GetFrameAtIndex(1)
         if frame1:
@@ -217,6 +212,9 @@ def handle_breakpoint(frame, bp_log, dict):
 
     if addr in BreakpointList:
         save_event(frame, args)
+    else:
+        print("Must not reach here : " + hex(addr))
+
 
     thread.Resume()
     process.Continue()
