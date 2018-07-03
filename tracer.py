@@ -147,8 +147,41 @@ def get_stacktrace(thread, string_buffer=False):
     return result
 
 
+def adjust_prev_event_ended(thread, frame):
+    if len(traced_events) < 1:
+        return
 
-def save_event(frame, args=None):
+    print len(traced_events)
+    prev_event = traced_events.values()[len(traced_events) - 1]
+    prev_event = prev_event[-1]
+    print prev_event
+
+    if prev_event["ph"] != fBeginEvent:
+        print prev_event["ph"]
+        return
+
+    prev_event_name = prev_event["name"]
+    print prev_event_name
+
+    for i in range(thread.GetNumFrames()):
+        if i == 0 or i == 1: continue
+        curr_frame = thread.GetFrameAtIndex(i)
+        DEBUG("FRAME", curr_frame)
+        curr_frame_name = curr_frame.GetDisplayFunctionName()
+
+        # generally calling stack.
+        if prev_event_name == curr_frame_name:
+            print(i, prev_event_name, curr_frame_name)
+            return
+
+    # adjust previous event had ended.
+    print (" ADJUSTMENT " )
+    prev_event_clone = prev_event.copy()
+    prev_event_clone["ph"] = fEndEvent
+    traced_events.values().append(prev_event_clone)
+
+
+def save_event(frame, event_type, args=None):
     thread = frame.GetThread()
     process = thread.GetProcess()
     target = process.GetTarget()
@@ -162,6 +195,9 @@ def save_event(frame, args=None):
     names = lldb.SBStringList()
 
     if addr in BreakpointList:
+        if event_type == fBeginEvent:
+            adjust_prev_event_ended(thread, frame)
+
         BreakpointList[addr].GetNames(names)
         name = names.GetStringAtIndex(0)
         if name is not None:
@@ -174,6 +210,10 @@ def save_event(frame, args=None):
             _event["ts"] = time.time()
             if args:
                 _event["args"] = args
+            if thread.GetNumFrames() > 2:
+                caller = thread.GetFrameAtIndex(1)
+                _event["caller"] = caller.GetDisplayFunctionName()
+
         else:
             print ("NAME IS NONE : " + hex(addr))
 
@@ -233,7 +273,7 @@ def handle_breakpoint(frame, bp_log, dict):
                 print("Cannot parse arguments")
 
     if addr in BreakpointList:
-        save_event(frame, args=args)
+        save_event(frame, event_type, args=args)
     else:
         print("Must not reach here : " + hex(addr))
 
