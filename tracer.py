@@ -319,7 +319,12 @@ def do_trace():
                     and symbol.GetName()):
                 # find end of function to set the breakpoint.
                 instlist = symbol.GetInstructions(target, "intel")
-                inst = instlist.GetInstructionAtIndex(instlist.GetSize()-1)
+                size = instlist.GetSize()
+                if size >= 2:
+                    inst = instlist.GetInstructionAtIndex(size-1)
+                else:
+                    continue
+
                 DEBUG("INSTRUCTIONS", instlist)
                 DEBUG("LAST INSTRUCTION", inst)
 
