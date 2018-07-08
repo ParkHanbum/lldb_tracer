@@ -9,6 +9,7 @@ import threading
 import time
 import base64
 import collections
+import sys
 
 from lldbutil import *
 
@@ -18,6 +19,9 @@ program_name = None
 
 # trace datas
 traced_events = {}
+
+# stack, to adjust control flow
+stack = []
 
 # Global Methods
 encode = base64.encodestring
@@ -56,7 +60,7 @@ class MyListeningThread(threading.Thread):
 
                 if state == lldb.eStateExited:
                     print("EXITED!")
-                    trace_finish(pid)
+                    trace_finish()
                     break
 
                 if state == lldb.eStateStopped:
@@ -74,10 +78,10 @@ class MyListeningThread(threading.Thread):
         return
 
 
-def trace_finish(pid):
+def trace_finish():
     trace_format = {}
 
-    for (tid, tname), events in traced_events.iteritems():
+    for (pid, tid), events in traced_events.iteritems():
         module = {}
         module["ts"] = 0
         module["ph"] = "M"
@@ -94,8 +98,6 @@ def trace_finish(pid):
             trace_format["traceEvents"] += events
         else:
             trace_format["traceEvents"] = events
-        print(events)
-        print("")
 
     trace_format["displayTimeUnit"] = "ns"
     metadata = {}
@@ -147,40 +149,6 @@ def get_stacktrace(thread, string_buffer=False):
     return result
 
 
-def adjust_prev_event_ended(thread, frame):
-    if len(traced_events) < 1:
-        return
-
-    print len(traced_events)
-    prev_event = traced_events.values()[len(traced_events) - 1]
-    prev_event = prev_event[-1]
-    print prev_event
-
-    if prev_event["ph"] != fBeginEvent:
-        print prev_event["ph"]
-        return
-
-    prev_event_name = prev_event["name"]
-    print prev_event_name
-
-    for i in range(thread.GetNumFrames()):
-        if i == 0 or i == 1: continue
-        curr_frame = thread.GetFrameAtIndex(i)
-        DEBUG("FRAME", curr_frame)
-        curr_frame_name = curr_frame.GetDisplayFunctionName()
-
-        # generally calling stack.
-        if prev_event_name == curr_frame_name:
-            print(i, prev_event_name, curr_frame_name)
-            return
-
-    # adjust previous event had ended.
-    print (" ADJUSTMENT " )
-    prev_event_clone = prev_event.copy()
-    prev_event_clone["ph"] = fEndEvent
-    traced_events.values().append(prev_event_clone)
-
-
 def save_event(frame, event_type, args=None):
     thread = frame.GetThread()
     process = thread.GetProcess()
@@ -195,9 +163,6 @@ def save_event(frame, event_type, args=None):
     names = lldb.SBStringList()
 
     if addr in BreakpointList:
-        if event_type == fBeginEvent:
-            adjust_prev_event_ended(thread, frame)
-
         BreakpointList[addr].GetNames(names)
         name = names.GetStringAtIndex(0)
         if name is not None:
@@ -212,17 +177,17 @@ def save_event(frame, event_type, args=None):
                 _event["args"] = args
             if thread.GetNumFrames() > 2:
                 caller = thread.GetFrameAtIndex(1)
-                _event["caller"] = caller.GetDisplayFunctionName()
-
+                _event["caller"] = caller.GetFunction().GetDisplayName()
         else:
             print ("NAME IS NONE : " + hex(addr))
 
-        if not (tid, tname) in traced_events:
-            traced_events[tid, tname] = []
+        if not (pid, tid) in traced_events:
+            traced_events[pid, tid] = []
 
-        traced_events[tid, tname].append(_event)
+        traced_events[pid, tid].append(_event)
     else:
         print ("ADDRESS IS NOT MATCHED : " + hex(addr))
+
 
 
 def handle_breakpoint(frame, bp_log, dict):
@@ -236,6 +201,8 @@ def handle_breakpoint(frame, bp_log, dict):
     tid = thread.GetThreadID()
     tname = thread.GetThreadID()
 
+    # the address which caller frame has is mean "return address of this function."
+    caller_frame = thread.GetFrameAtIndex(1)
     event_type = None
 
     if addr in BreakpointList:
@@ -255,7 +222,15 @@ def handle_breakpoint(frame, bp_log, dict):
     # save arguments
     args = None
 
-    if event_type is not fEndEvent:
+    if event_type is fBeginEvent:
+        if not (caller_frame.GetPC() in BreakpointList):
+            # set the breakpoint to returnning address.
+            addr = caller_frame.GetPC()
+            bpe = target.BreakpointCreateByAddress(addr)
+            bpe.SetScriptCallbackFunction("handle_breakpoint")
+            bpe.AddName(encode(symbol.GetName() + ":E"))
+            BreakpointList[addr] = bpe
+
         if options.print_args:
             # arguments     => True
             # locals        => False
@@ -338,11 +313,12 @@ def do_trace():
                 bpb.SetScriptCallbackFunction("handle_breakpoint")
                 bpb.AddName(encode(symbol.GetName() + ":B"))
                 BreakpointList[begin] = bpb
-
+                """
                 bpe = target.BreakpointCreateByAddress(end)
                 bpe.SetScriptCallbackFunction("handle_breakpoint")
                 bpe.AddName(encode(symbol.GetName() + ":E"))
                 BreakpointList[end] = bpe
+                """
 
     print("Start Tracing...")
     print(binpath)
