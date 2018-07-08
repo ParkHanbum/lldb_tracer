@@ -77,7 +77,8 @@ def parse_chrome_data():
 def add_node(el):
     global nodes
     node = Node(**el) 
-    nodes[node.name] = node
+    if not (node.name in nodes):
+        nodes[node.name] = node
 
 def add_edge(caller, callee):
     global edges
@@ -88,19 +89,21 @@ def add_edge(caller, callee):
         caller = nodes[caller_name]
     else:
         caller = Node(**caller)
+        nodes[caller_name] = caller
 
     if callee_name in nodes:
         callee = nodes[callee_name]
         callee.Called()
     else:
         callee = Node(**callee)
+        nodes[callee_name] = callee
 
     edge = Edge(caller, callee)
 
-    if (caller.name, callee.name) in edges:
-        edges[(caller.name, callee.name)].Called()
+    if (caller_name, callee_name) in edges:
+        edges[(caller_name, callee_name)].Called()
     else:
-        edges[(caller.name, callee.name)] = edge
+        edges[(caller_name, callee_name)] = edge
 
 def do_trans():
     global data
