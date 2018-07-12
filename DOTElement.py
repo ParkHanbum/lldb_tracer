@@ -3,7 +3,7 @@
 import zlib
 
 class Node():
-    
+
     NodeArg = 'args'
     NodeName = 'name'
     NodeType = 'ph'
@@ -42,6 +42,24 @@ class Node():
 
         return label
 
+    def ToStr(self):
+        result = ("{name}, {pid}, {tid}, {ts}".format(
+            name = self.name,
+            pid = self.pid,
+            tid = self.tid,
+            ts = self.ts
+            ))
+        return result
+
+    def ToList(self):
+        result = []
+        result.append(self.name)
+        result.append(self.pid)
+        result.append(self.tid)
+        result.append(self.ts)
+
+        return result
+
 class Edge():
 
     def __init__(self, caller, callee):
@@ -58,6 +76,12 @@ class Edge():
     def GetColor(self):
         pass
 
+    def GetCallerName(self):
+        return self.caller.GetName()
+
+    def GetCalleeName(self):
+        return self.callee.GetName()
+
     def ToDotLabel(self):
         label = ('\t"{caller_name}"->"{callee_name}"[xlabel="{label}"]\n'
         .format(caller_name=self.caller.GetName(),
@@ -65,4 +89,18 @@ class Edge():
                 label=self.GetCallCount()
                 ))
         return label
+
+    def ToStr(self):
+        result = ("{caller_name}, {callee_name}"
+                .format(caller_name = self.caller.GetName(),
+                    callee_name = self.callee.GetName())
+                )
+        return result
+
+    def ToList(self):
+        result = []
+        result.append(self.caller.GetName())
+        result.append(self.callee.GetName())
+        result.append(self.GetCallCount())
+        return result
 

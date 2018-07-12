@@ -1,0 +1,26 @@
+
+<html>
+    <head>
+        <title> Let's try again until done with it! </title>
+    </head>
+
+    <body>
+        <split-pane v-on:resize="resize" :min-percent='20' :default-percent='30' split="vertical">
+            <template slot="paneL">
+                A
+            </template>
+            <template slot="paneR">
+                B
+            </template>
+        </split-pane>
+    </body>
+
+
+
+    <script src="node_modules/vue/dist/vue.js"></script>
+    <script src="node_modules/vue-splitpane/dist/vue-split-pane.min.js"></script>
+    <script>
+        Vue.component('split-pane', VueSplitPane);
+    </script>
+</html>
+

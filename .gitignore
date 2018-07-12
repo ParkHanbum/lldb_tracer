@@ -1,6 +1,11 @@
 tags*
 cscope*
-*.log
+*log
 *.js
 *.pyc
-
+*.sqlite
+*.swp
+*.json
+*.query
+*.dot
+*.svg

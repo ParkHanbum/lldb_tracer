@@ -4,10 +4,12 @@ import os
 import json
 import optparse
 from DOTElement import *
+from DBHelper import *
 
 options = None
 data = None
 
+helper = None
 nodes = {}
 edges = {}
 
@@ -75,38 +77,24 @@ def parse_chrome_data():
     return data
 
 def add_node(el):
-    global nodes
     node = Node(**el)
-    if not (node.name in nodes):
-        nodes[node.name] = node
+    helper.InsertNode(node)
 
 def add_edge(caller, callee):
+    global helper
     global edges
     caller_name = caller[Node.NodeName]
     callee_name = callee[Node.NodeName]
 
-    if caller_name in nodes:
-        caller = nodes[caller_name]
-    else:
-        caller = Node(**caller)
-        nodes[caller_name] = caller
-
-    if callee_name in nodes:
-        callee = nodes[callee_name]
-        callee.Called()
-    else:
-        callee = Node(**callee)
-        nodes[callee_name] = callee
-
+    caller = Node(**caller)
+    callee = Node(**callee)
     edge = Edge(caller, callee)
 
-    if (caller_name, callee_name) in edges:
-        edges[(caller_name, callee_name)].Called()
-    else:
-        edges[(caller_name, callee_name)] = edge
+    helper.InsertEdge(edge)
 
 def do_trans():
     global data
+
     stack = []
     data = parse_chrome_data()
     event_list = data["traceEvents"]
@@ -132,7 +120,7 @@ def parse_options():
             help="Specify path of the data file in chrome tracing data format")
     parser.add_option("-o", "--output-file",
             action="store", dest="outputfile", type="string", default=None,
-            help="Specify file to store the data in DOT formatted from chrome tracing data")
+            help="Specify file to store the data in SQLite database from chrome tracing data")
 
     (options, args) = parser.parse_args()
 
@@ -140,22 +128,34 @@ def parse_options():
 def prepare_output():
     global output
     global options
+    global helper
     print options
 
-    output = "result.dot"
+    output = "tracing_datas.sqlite"
     if options.outputfile is not None:
         output = options.outputfile
 
-    output = open(output, 'w+')
+    helper = DBHelper(output)
 
 
 if __name__ == "__main__":
     parse_options()
     prepare_output()
     do_trans()
+
+    # temporary, for debugging
+    rows = helper.GetAllNode()
+    for row in rows:
+        print row
+    rows = helper.GetAllEdge()
+    for row in rows:
+        print row
+
+    """
     gen_dot_header()
     gen_dot_attributes()
     gen_dot_groups()
     gen_dot_nodes()
     gen_dot_edges()
     gen_dot_footer()
+    """
